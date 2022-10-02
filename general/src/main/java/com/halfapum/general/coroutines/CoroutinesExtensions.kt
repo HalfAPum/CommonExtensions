@@ -1,5 +1,6 @@
 package com.halfapum.general.coroutines
 
+import com.halfapum.general.BuildConfig
 import android.app.Application
 import android.util.Log
 import android.view.View
@@ -34,7 +35,7 @@ fun View.launch(
 /**
  * Catches exception and logs it with default android [Log]
  *
- * Open for override if default logic is not enough
+ * Open for inheritance if default logic is not enough
  * or if you want to override it.
  */
 open class DefaultCoroutineExceptionHandler : AbstractCoroutineContextElement(CoroutineExceptionHandler),
@@ -44,7 +45,9 @@ open class DefaultCoroutineExceptionHandler : AbstractCoroutineContextElement(Co
     open val exceptionMessage: String = COROUTINE_EXCEPTION_MESSAGE
 
     override fun handleException(context: CoroutineContext, exception: Throwable) {
-        Log.e(coroutineTag, exceptionMessage, exception)
+        if (BuildConfig.DEBUG) {
+            Log.e(coroutineTag, exceptionMessage, exception)
+        }
     }
 
     companion object {
