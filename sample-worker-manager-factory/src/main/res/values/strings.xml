@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SampleWorkManager</string>
+    <string name="begin_work">Begin work</string>
+    <string name="running">Running…</string>
+</resources>
