@@ -17,3 +17,4 @@ rootProject.name = "Common Extensions"
 include ':app'
 include ':general'
 include ':sample-worker-manager-factory'
+include ':samplecoroutines'

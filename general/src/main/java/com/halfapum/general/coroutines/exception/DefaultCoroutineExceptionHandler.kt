@@ -14,12 +14,14 @@ import kotlin.coroutines.CoroutineContext
  */
 open class DefaultCoroutineExceptionHandler : AbstractCoroutineContextElement(
     CoroutineExceptionHandler
-),
-    CoroutineExceptionHandler {
+), CoroutineExceptionHandler {
 
     open val coroutineTag: String = COROUTINE_TAG
     open val exceptionMessage: String = COROUTINE_EXCEPTION_MESSAGE
 
+    /**
+     * If you override this fun don't forget to call [ExceptionPropagator.propagate].
+     */
     override fun handleException(context: CoroutineContext, exception: Throwable) {
         if (BuildConfig.DEBUG) {
             Log.e(coroutineTag, exceptionMessage, exception)

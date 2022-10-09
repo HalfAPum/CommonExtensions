@@ -14,6 +14,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/general" />
             <option value="$PROJECT_DIR$/sample-worker-manager-factory" />
+            <option value="$PROJECT_DIR$/samplecoroutines" />
           </set>
         </option>
       </GradleProjectSettings>

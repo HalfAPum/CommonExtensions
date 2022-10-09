@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+/**
+ * Allow you avoid triple callback to collect latest values from [Flow].
+ */
 fun <T> LifecycleOwner.subscribeFlow(
     flow: Flow<T>,
     block: suspend (item: T) -> Unit
