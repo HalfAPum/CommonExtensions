@@ -22,6 +22,25 @@ import kotlinx.coroutines.flow.SharedFlow
  */
 var generalCoroutineExceptionHandler: CoroutineExceptionHandler = DefaultCoroutineExceptionHandler()
 
+fun <T> Activity.collectLatestMappedException(
+    exceptionMapper: ExceptionMapper<T>,
+    block: suspend (item: T) -> Unit
+) {
+    collectLatestException {
+        val mappedException = exceptionMapper.map(it)
+        block(mappedException)
+    }
+}
+
+fun <T> Activity.collectMappedException(
+    exceptionMapper: ExceptionMapper<T>,
+    block: suspend (item: T) -> Unit
+) {
+    collectExceptions {
+        val mappedException = exceptionMapper.map(it)
+        block(mappedException)
+    }
+}
 
 fun Activity.collectLatestException(block: suspend (item: Throwable) -> Unit) {
     (this as? LifecycleOwner)?.subscribeFlow(ExceptionPropagator.exceptionFlow, block)

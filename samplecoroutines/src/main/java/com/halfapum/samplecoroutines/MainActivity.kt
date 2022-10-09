@@ -1,5 +1,6 @@
 package com.halfapum.samplecoroutines
 
+import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.ViewModel
@@ -7,13 +8,31 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.get
 import com.halfapum.general.coroutines.exception.collectLatestException
+import com.halfapum.general.coroutines.exception.collectLatestMappedException
 import com.halfapum.general.coroutines.launch
 import com.halfapum.general.coroutines.launchCatching
+import java.net.HttpRetryException
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //Subscribe for custom coroutines exceptions
+        collectLatestMappedException(CustomExceptionMapper) {
+            println("CUSTOM EXCEPTION!!!: $it")
+        }
+
+        //Or for ease of usage create next extensions and use it like that
+        fun Activity.collectLatestMappedException(block: suspend (item: CustomExceptionWrapper) -> Unit) {
+            collectLatestMappedException(CustomExceptionMapper, block)
+        }
+
+        collectLatestMappedException {
+            println("MY EXTENSIONS MAPPED EXCEPTION $it")
+        }
+        //End of useful extension
+
 
         //Subscribe for coroutines exceptions
         collectLatestException {
@@ -56,7 +75,7 @@ class MainViewModel: ViewModel() {
     fun doSomeWorkCatchingException() {
         launchCatching {
             println("launch coroutine inside viewModel")
-            throw IllegalArgumentException("Some illegal exception")
+            throw HttpRetryException("Some illegal exception", 11)
         }
     }
 
