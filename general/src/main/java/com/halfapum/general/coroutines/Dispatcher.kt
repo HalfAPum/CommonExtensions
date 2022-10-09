@@ -8,7 +8,7 @@ import kotlinx.coroutines.newSingleThreadContext
 /**
  * Use this class to avoid HARDCODING dispatchers.
  *
- * Allows inject dispatchers. Makes your code at least testable if mind test it one time.
+ * Allows inject dispatchers. Makes your code at least testable if you mind test it one time.
  */
 @OptIn(DelicateCoroutinesApi::class)
 data class Dispatcher(
