@@ -1,12 +1,9 @@
 package com.halfapum.samplecoroutines
 
-import android.app.Activity
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.get
 import com.halfapum.general.coroutines.exception.collectLatestException
 import com.halfapum.general.coroutines.exception.collectLatestMappedException
 import com.halfapum.general.coroutines.launch
@@ -18,26 +15,28 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //Subscribe for coroutines exceptions
+        collectLatestException {
+            println("Some launch coroutine FIRED EXCEPTION: $it")
+            true
+        }
+
         //Subscribe for custom coroutines exceptions
         collectLatestMappedException(CustomExceptionMapper) {
             println("CUSTOM EXCEPTION!!!: $it")
+            true
         }
 
         //Or for ease of usage create next extensions and use it like that
-        fun Activity.collectLatestMappedException(block: suspend (item: CustomExceptionWrapper) -> Unit) {
+        fun LifecycleOwner.collectLatestMappedException(block: (item: CustomExceptionWrapper) -> Boolean) {
             collectLatestMappedException(CustomExceptionMapper, block)
         }
 
         collectLatestMappedException {
             println("MY EXTENSIONS MAPPED EXCEPTION $it")
+            true
         }
         //End of useful extension
-
-
-        //Subscribe for coroutines exceptions
-        collectLatestException {
-            println("Some launch coroutine FIRED EXCEPTION: $it")
-        }
 
 
 

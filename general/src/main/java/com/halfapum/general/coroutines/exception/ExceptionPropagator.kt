@@ -1,31 +1,29 @@
 package com.halfapum.general.coroutines.exception
 
-import android.app.Application
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import java.util.*
+import kotlin.collections.ArrayDeque
 
 object ExceptionPropagator {
 
-    private var _exceptionFlow: MutableSharedFlow<Throwable> = MutableSharedFlow(
-        10,
-        10,
-        BufferOverflow.DROP_LATEST,
-    )
+    private val exceptionCallbacksQueue = ArrayDeque<ExceptionCallback>()
 
-    var exceptionFlow = _exceptionFlow.asSharedFlow()
-        private set
+    private val unhandledExceptions = LinkedList<Throwable>()
 
-    /**
-     * Configure [MutableSharedFlow] strategy if default doesn't correspond your requirements.
-     */
-    fun Application.configureExceptionFlow(
-        replay: Int = 10,
-        extraBufferCapacity: Int = 10,
-        onBufferOverflow: BufferOverflow = BufferOverflow.DROP_LATEST
-    ) {
-        _exceptionFlow = MutableSharedFlow(replay, extraBufferCapacity, onBufferOverflow)
-        exceptionFlow = _exceptionFlow.asSharedFlow()
+    fun addExceptionCallback(exceptionCallback: ExceptionCallback) {
+        exceptionCallbacksQueue.add(exceptionCallback)
+
+        if (unhandledExceptions.isNotEmpty()) {
+            val exceptions = LinkedList(unhandledExceptions)
+            unhandledExceptions.clear()
+
+            exceptions.forEach {
+                propagate(it)
+            }
+        }
+    }
+
+    fun removeExceptionCallback(exceptionCallback: ExceptionCallback) {
+        exceptionCallbacksQueue.remove(exceptionCallback)
     }
 
 
@@ -33,7 +31,16 @@ object ExceptionPropagator {
      * Propagate [Throwable] to exception flow.
      */
     fun propagate(throwable: Throwable) {
-        _exceptionFlow.tryEmit(throwable)
+        //Iterate over ArrayDeque in reversed order.
+        for(index in exceptionCallbacksQueue.indices.reversed()) {
+            val exceptionHandled = exceptionCallbacksQueue[index].invoke(throwable)
+
+            if (exceptionHandled) return
+        }
+
+        //No active handlers.
+        //Save exception for future active handlers.
+        unhandledExceptions.add(throwable)
     }
 
 }

@@ -2,7 +2,6 @@ package com.halfapum.samplecoroutines
 
 import android.app.Application
 import com.halfapum.general.coroutines.exception.DefaultCoroutineExceptionHandler
-import com.halfapum.general.coroutines.exception.ExceptionPropagator.configureExceptionFlow
 import com.halfapum.general.coroutines.exception.generalCoroutineExceptionHandler
 import kotlin.coroutines.CoroutineContext
 
@@ -12,15 +11,10 @@ class MainApplication: Application() {
         super.onCreate()
 
         //ADVANCED USAGE
-        //Configure exception flow on demand
-        configureExceptionFlow(9,11)
-
         //Change default exception handler to custom
         generalCoroutineExceptionHandler
         //Uncomment next line to check work
         // generalCoroutineExceptionHandler = MyExceptionHandler()
-
-        //
     }
 }
 

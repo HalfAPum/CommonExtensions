@@ -1,16 +1,9 @@
 package com.halfapum.general.coroutines.exception
 
-import android.app.Activity
 import android.app.Application
-import android.os.Bundle
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
-import com.halfapum.general.coroutines.launch
 import com.halfapum.general.coroutines.launchCatching
-import com.halfapum.general.coroutines.subscribeFlow
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.SharedFlow
 
 /**
  * Singleton.
@@ -22,9 +15,9 @@ import kotlinx.coroutines.flow.SharedFlow
  */
 var generalCoroutineExceptionHandler: CoroutineExceptionHandler = DefaultCoroutineExceptionHandler()
 
-fun <T> Activity.collectLatestMappedException(
+fun <T> LifecycleOwner.collectLatestMappedException(
     exceptionMapper: ExceptionMapper<T>,
-    block: suspend (item: T) -> Unit
+    block: (item: T) -> Boolean
 ) {
     collectLatestException {
         val mappedException = exceptionMapper.map(it)
@@ -32,24 +25,15 @@ fun <T> Activity.collectLatestMappedException(
     }
 }
 
-fun <T> Activity.collectMappedException(
-    exceptionMapper: ExceptionMapper<T>,
-    block: suspend (item: T) -> Unit
-) {
-    collectExceptions {
-        val mappedException = exceptionMapper.map(it)
-        block(mappedException)
-    }
+fun LifecycleOwner.collectLatestException(exceptionCallback: ExceptionCallback) {
+    addLifecycleCancellableExceptionCallback(exceptionCallback)
 }
 
-fun Activity.collectLatestException(block: suspend (item: Throwable) -> Unit) {
-    (this as? LifecycleOwner)?.subscribeFlow(ExceptionPropagator.exceptionFlow, block)
+fun addCancellableExceptionCallback(exceptionCallback: ExceptionCallback): CancellableExceptionCallback {
+    ExceptionPropagator.addExceptionCallback(exceptionCallback)
+    return CancellableExceptionCallback(exceptionCallback)
 }
 
-fun Activity.collectExceptions(block: suspend (item: Throwable) -> Unit) = (this as? LifecycleOwner)?.apply {
-    launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            ExceptionPropagator.exceptionFlow.collect(block)
-        }
-    }
+fun LifecycleOwner.addLifecycleCancellableExceptionCallback(exceptionCallback: ExceptionCallback) {
+    LifecycleCancellableExceptionCallback(lifecycle, exceptionCallback)
 }
